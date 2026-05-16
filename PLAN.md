@@ -6,18 +6,18 @@
 
 ## Current State
 
-Discovery phase. No code exists yet. **Next step: Authorship Artifact v0.1 Schema** (see Queued Iterations below).
+Discovery phase. No code exists yet. **Next step: Technical Spike — VS Code + Passive Capture Feasibility** (Iteration 2).
 
 **What exists right now:**
 - `PROJECT_DESCRIPTION.md` — product framing and how to work with Claude on this project
 - `SEED_DOC.md` — problem, opportunity, competitive landscape, revenue model hypotheses
 - `CONTEXT.md` — discovery gaps, assumptions ranked by risk, phased attack plan
+- `ARTIFACT_SPEC.md` — Authorship Artifact Specification v0.1 (four-layer schema, JSON-LD + PDF format decision, 10 open questions for attorneys)
 - `PLAN.md` — this document
 
 **What does not exist yet:**
 - Any code
-- A validated authorship artifact schema
-- IP attorney input on what "defensible" evidence looks like
+- Attorney validation of the artifact spec
 - Customer discovery interviews
 - A technical spike on passive capture feasibility
 
@@ -33,11 +33,11 @@ Discovery phase. No code exists yet. **Next step: Authorship Artifact v0.1 Schem
 - *Owner:* Founder decision — discovery interviews are the primary input, but we may be able to reason toward a working hypothesis before they happen
 - *Decide before:* MVP Spec (Iteration 4 output)
 
-**[B2] Authorship artifact format — UNDECIDED**
-- *Question:* What exactly does the output artifact contain, in what format, at what level of granularity?
-- *Why it matters:* Everything downstream — data model, capture layer, UX — depends on knowing what we're building toward. Building the pipeline before knowing the output is the most common failure mode for tools like this.
-- *Owner:* Research (Claude can draft v0.1); Validation (IP attorneys must confirm before we build)
-- *Decide before:* Technical spike (Iteration 2)
+**[B2] Authorship artifact format — DRAFT COMPLETE, ATTORNEY VALIDATION PENDING**
+- *Decision so far:* Four-layer schema (session envelope, interaction log, human decision record, authorship summary). JSON-LD machine-readable + PDF human-readable. Required/recommended/excluded field breakdown complete. See `ARTIFACT_SPEC.md`.
+- *Remaining:* IP attorney validation of the schema before the capture layer is built. 10 specific questions documented in `ARTIFACT_SPEC.md` Section 8.
+- *Owner:* Validation (IP attorneys); Founder must initiate attorney engagement
+- *Decide before:* Any production code on the capture layer
 
 ### Important
 
@@ -70,8 +70,8 @@ Discovery phase. No code exists yet. **Next step: Authorship Artifact v0.1 Schem
 - *Owner:* Competitive monitoring — revisit quarterly
 
 **[M3] EU AI Act Article 50 enforcement (August 2026)**
-- Currently the strongest near-term regulatory forcing function. Monitor for delay or weakening of enforcement, which would reduce compliance urgency.
-- *Owner:* Monitor — treat as accelerant, not foundation
+- **Reframed (Iteration 1 finding):** Article 50 likely does not apply directly to AI-assisted code development. Scope is public-facing deception scenarios (deep fakes, AI-generated public-interest text, synthetic media) — not internal software development workflows. The compliance hook for Quill's customers is more accurately: US copyright registration requirements, M&A rep & warranty language, EU Cyber Resilience Act SBOM requirements, and sector-specific AI regulations. Quill aligns with regulatory direction of travel; it does not satisfy a specific Article 50 mandate for software development.
+- *Owner:* Monitor; update product positioning language in `SEED_DOC.md` once attorney validation confirms this reading
 
 **[M4] Developer privacy / surveillance concerns**
 - Capturing prompts and edit histories raises questions about what happens to proprietary business logic in those prompts. On-prem / self-hosted option may be required for enterprise.
@@ -81,7 +81,9 @@ Discovery phase. No code exists yet. **Next step: Authorship Artifact v0.1 Schem
 
 ## Queued Iterations
 
-### ⬇️ NEXT: Iteration 1 — Authorship Artifact v0.1 Schema
+### ✅ COMPLETE: Iteration 1 — Authorship Artifact v0.1 Schema
+
+### ⬇️ NEXT: Iteration 2 — Technical Spike: VS Code + Passive Capture Feasibility
 **Theme:** Design the output before building the pipeline that generates it. Work backward from what copyright registration attorneys, M&A diligence teams, and the Copyright Office actually need.
 **Scope:**
 - Research Copyright Office disclosure requirements for AI-assisted works (current guidance, registration forms, stated expectations)
@@ -105,7 +107,6 @@ Discovery phase. No code exists yet. **Next step: Authorship Artifact v0.1 Schem
 
 ---
 
-### Iteration 2 — Technical Spike: VS Code + Passive Capture Feasibility
 **Theme:** Determine whether the passive capture model is technically feasible before committing to it architecturally. Prototype in one IDE with one AI tool first.
 **Scope:**
 - Map the VS Code extension API: what events fire during development, what data is accessible, what requires user permission
@@ -229,3 +230,9 @@ Discovery phase. No code exists yet. **Next step: Authorship Artifact v0.1 Schem
 ### Iteration 0 — Project Initialization (May 2026)
 **Produced:** `PROJECT_DESCRIPTION.md`, `SEED_DOC.md`, `CONTEXT.md` — product framing, problem/opportunity thesis, discovery gaps and risk register. Git repo initialized and pushed to GitHub. `PLAN.md` drafted.
 **Divergences from plan:** N/A — initial setup.
+**Commit:** `3680b24`, `280a6c5`
+
+### Iteration 1 — Authorship Artifact v0.1 Schema (May 2026)
+**Produced:** `ARTIFACT_SPEC.md` — four-layer QAR schema (session envelope, interaction log, human decision record, authorship summary), JSON-LD + PDF format decision, required/recommended/excluded field breakdown, 10 open questions for IP attorney validation.
+**Divergences from plan:** One significant finding outside original scope: EU AI Act Article 50 almost certainly does not apply directly to AI-assisted code development. The compliance framing in `SEED_DOC.md` requires qualification. Flagged in spec; attorney confirmation needed before updating product positioning. C2PA added as a forward-compatibility consideration not in the original scope — now a named input for Iteration 2.
+**Commit:** `03b9eb2`
