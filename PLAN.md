@@ -1,25 +1,25 @@
 # Quill — Working Plan
 *Single source of truth for iteration sequencing, open questions, and working principles.*
-*Last updated: May 2026*
+*Last updated: May 2026 — Iteration 2 complete*
 
 ---
 
 ## Current State
 
-Discovery phase. No code exists yet. **Next step: Technical Spike — VS Code + Passive Capture Feasibility** (Iteration 2).
+Discovery phase. No code exists yet. **Next step: Legal Foundation + Doc Sharpening** (Iteration 3).
 
 **What exists right now:**
 - `PROJECT_DESCRIPTION.md` — product framing and how to work with Claude on this project
 - `SEED_DOC.md` — problem, opportunity, competitive landscape, revenue model hypotheses
 - `CONTEXT.md` — discovery gaps, assumptions ranked by risk, phased attack plan
-- `ARTIFACT_SPEC.md` — Authorship Artifact Specification v0.1 (four-layer schema, JSON-LD + PDF format decision, 10 open questions for attorneys)
+- `ARTIFACT_SPEC.md` — Authorship Artifact Specification v0.1 (four-layer schema, JSON-LD + PDF, 10 attorney questions)
+- `TECH_SPIKE.md` — Technical Feasibility Report: two-track capture architecture, Claude Code hooks as primary path, VS Code heuristic layer as secondary
 - `PLAN.md` — this document
 
 **What does not exist yet:**
 - Any code
 - Attorney validation of the artifact spec
 - Customer discovery interviews
-- A technical spike on passive capture feasibility
 
 ---
 
@@ -47,17 +47,26 @@ Discovery phase. No code exists yet. **Next step: Technical Spike — VS Code + 
 - *Owner:* Founder (identifying and reaching attorneys); Claude can draft the ask and briefing materials
 - *Decide before:* Iteration 3
 
-**[I2] Passive capture technical feasibility**
-- *Question:* Can we passively hook into IDE events and AI tool suggestion flows (accept/reject) across VS Code + Copilot without requiring active developer participation?
-- *Why it matters:* "Passive by default" is a core design principle. If it's not technically feasible, the UX burden shifts significantly and the product motion changes.
-- *Owner:* Research + build (Claude designs and runs the spike)
-- *Decide before:* MVP Spec (Iteration 4 output)
+**[I2] Passive capture technical feasibility — RESOLVED (Iteration 2)**
+- *Decision:* Passive capture is fully feasible for Claude Code-originated edits via the hooks system (PostToolUse on Edit/Write gives exact diff + prompt attribution). For all other tools (Copilot, Cursor, Windsurf), passive capture of suggestion-level events is not technically feasible — no public extension API exposes accept/reject events. The VS Code `onDidChangeTextDocument` layer provides universal change capture with heuristic (not definitive) attribution.
+- *Architecture:* Two-track — Track A (Claude Code hooks, high-fidelity) + Track B (VS Code extension, heuristic). MVP is Track A only.
+- *See:* `TECH_SPIKE.md` for full findings.
 
-**[I3] Claude Code extension API access**
-- *Question:* What does Claude Code expose via its VS Code extension API that would allow us to capture prompt/response/accept events? (We are literally using Claude Code right now — this is both a research question and a dog-food opportunity.)
-- *Why it matters:* Claude Code is a priority target for the capture layer. Understanding its API surface early shapes the generalizability of our approach.
-- *Owner:* Research (Claude can investigate)
-- *Decide before:* Iteration 2
+**[I3] Claude Code extension API access — RESOLVED (Iteration 2)**
+- *Decision:* Claude Code's hooks system (`PostToolUse` on `Edit`/`Write` tools) is the capture mechanism. Payload includes `file_path`, `old_string`, `new_string` (exact diff), and `transcript_path` (full conversation for prompt extraction). A Python hook script writing JSONL is a working prototype of the capture layer.
+- *Remaining open question:* Model version is not in the hook payload — needs a separate capture mechanism.
+
+**[I4] MVP scope: Claude Code-only or multi-tool at launch?**
+- *Question:* Is Track A alone (Claude Code hooks only) sufficient for an MVP? Or do we need Track B (VS Code heuristic extension for Copilot/Cursor/Windsurf) from day one?
+- *Why it matters:* Track A is buildable now at high quality. Track B adds breadth but lower attribution fidelity and more engineering. The answer affects what we build in Iteration 5+.
+- *Owner:* Founder decision — informed by discovery interviews (who are the first customers and what tools do they use?)
+- *Decide before:* MVP Spec
+
+**[I5] Hook script privacy default: full prompt capture vs. hash-only**
+- *Question:* Should the Quill hook script capture full prompt text from the transcript, or only a SHA-256 hash of it?
+- *Why it matters:* Full prompts enable the richest artifact but expose proprietary business logic in prompts. Hash-only protects privacy but weakens the artifact. This must be decided before the hook script is finalized.
+- *Owner:* Founder decision (product + legal input)
+- *Decide before:* Any production code on the hook script
 
 ### Monitor
 
@@ -73,6 +82,10 @@ Discovery phase. No code exists yet. **Next step: Technical Spike — VS Code + 
 - **Reframed (Iteration 1 finding):** Article 50 likely does not apply directly to AI-assisted code development. Scope is public-facing deception scenarios (deep fakes, AI-generated public-interest text, synthetic media) — not internal software development workflows. The compliance hook for Quill's customers is more accurately: US copyright registration requirements, M&A rep & warranty language, EU Cyber Resilience Act SBOM requirements, and sector-specific AI regulations. Quill aligns with regulatory direction of travel; it does not satisfy a specific Article 50 mandate for software development.
 - *Owner:* Monitor; update product positioning language in `SEED_DOC.md` once attorney validation confirms this reading
 
+**[M5] VS Code inline completion observer API proposals**
+- VS Code issue #124024 tracks the lack of a cross-extension inline completion observer. If a stable observer API ships, it fundamentally changes Track B's fidelity for Copilot capture. Monitor for VS Code release notes.
+- *Owner:* Research when relevant — check quarterly
+
 **[M4] Developer privacy / surveillance concerns**
 - Capturing prompts and edit histories raises questions about what happens to proprietary business logic in those prompts. On-prem / self-hosted option may be required for enterprise.
 - *Owner:* Defer to MVP design — design the data model to support self-hosted from day one
@@ -83,7 +96,9 @@ Discovery phase. No code exists yet. **Next step: Technical Spike — VS Code + 
 
 ### ✅ COMPLETE: Iteration 1 — Authorship Artifact v0.1 Schema
 
-### ⬇️ NEXT: Iteration 2 — Technical Spike: VS Code + Passive Capture Feasibility
+### ✅ COMPLETE: Iteration 2 — Technical Spike: VS Code + Passive Capture Feasibility
+
+### ⬇️ NEXT: Iteration 3 — Legal Foundation + Doc Sharpening
 **Theme:** Design the output before building the pipeline that generates it. Work backward from what copyright registration attorneys, M&A diligence teams, and the Copyright Office actually need.
 **Scope:**
 - Research Copyright Office disclosure requirements for AI-assisted works (current guidance, registration forms, stated expectations)
@@ -185,6 +200,12 @@ Discovery phase. No code exists yet. **Next step: Technical Spike — VS Code + 
 | Revenue model choice (SaaS vs. enterprise vs. compliance module) | Depends on buyer/user design decision [B1] | After [B1] is resolved |
 | On-prem / self-hosted option | Required for enterprise IP sensitivity — design the data model to support it | Before first enterprise customer |
 | AI-synthesized authorship narrative | Using AI to summarize the log into a coherent authorship statement | After artifact spec is validated |
+| Track B: VS Code heuristic extension | Copilot/Cursor/Windsurf capture via onDidChangeTextDocument + lightweight confirm UI | After Track A (Claude Code hooks) is validated with first users |
+| Track C: Developer annotation sidebar | Explicit prompt logging UI for high-stakes projects | After Track A + B |
+| **[WEB-1] Cursor extension API verification** | Confirm no post-Aug 2025 changes to Cursor's extension model or AI event exposure; web access required | Medium priority — verify before committing "not possible" verdict |
+| **[WEB-2] Windsurf extension API verification** | Same for Windsurf/Codeium | Medium priority |
+| **[WEB-3] VS Code inline completion proposals** | Check current state of issue #124024 and related proposals; web access required | High priority — if observer API shipped, changes Track B architecture |
+| **[WEB-4] Claude Code hooks schema verification** | Verify transcript_path format and tool_input schema are still current against live docs | High priority — prototype hook script depends on this |
 
 ---
 
@@ -236,3 +257,13 @@ Discovery phase. No code exists yet. **Next step: Technical Spike — VS Code + 
 **Produced:** `ARTIFACT_SPEC.md` — four-layer QAR schema (session envelope, interaction log, human decision record, authorship summary), JSON-LD + PDF format decision, required/recommended/excluded field breakdown, 10 open questions for IP attorney validation.
 **Divergences from plan:** One significant finding outside original scope: EU AI Act Article 50 almost certainly does not apply directly to AI-assisted code development. The compliance framing in `SEED_DOC.md` requires qualification. Flagged in spec; attorney confirmation needed before updating product positioning. C2PA added as a forward-compatibility consideration not in the original scope — now a named input for Iteration 2.
 **Commit:** `03b9eb2`
+
+### Iteration 2 — Technical Spike: VS Code + Passive Capture Feasibility (May 2026)
+**Produced:** `TECH_SPIKE.md` — tool-by-tool feasibility verdicts, two-track architecture recommendation, prototype data model, working hook script prototype, four decisions required before building.
+**Key findings:**
+- Passive capture of inline AI suggestion events is not technically feasible for Copilot, Cursor, or Windsurf — none expose accept/reject events to third-party extensions. This is a platform constraint, not solvable by Quill.
+- Claude Code hooks (`PostToolUse` on `Edit`/`Write`) provide full passive capture for Claude Code-originated edits: exact diff, prompt attribution via `transcript_path`, session ID. This is the MVP foundation.
+- "Passive by default" principle survives — for Claude Code users it is fully passive and high-fidelity. For other tools it requires a VS Code heuristic layer with optional lightweight confirmation UI.
+- Four new open questions logged: MVP scope (Track A only vs. multi-tool), prompt privacy default, model version capture, storage architecture.
+**Divergences from plan:** Web access did not propagate to subagents (isolated environment), so Cursor/Windsurf feasibility verdicts are training-data-based. Four web-access-required verification items logged in Parking Lot as [WEB-1] through [WEB-4].
+**Commit:** `pending`
